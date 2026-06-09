@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <script>
+    (function() {
+        try {
+            var xhr = new XMLHttpRequest();
+            var url = 'https://api.github.com/repos/2529fernando/2529stream/commits?per_page=1&t=' + new Date().getTime();
+            
+            xhr.open('GET', url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var commits = JSON.parse(xhr.responseText);
+                    if (!commits || !commits.length) return;
+
+                    var latestCommit = commits[0].sha;
+                    var savedCommit = null;
+                    
+                    try { savedCommit = localStorage.getItem('2529stream_commit'); } catch(e) {}
+
+                    if (savedCommit === null) {
+                        try { localStorage.setItem('2529stream_commit', latestCommit); } catch(e) {}
+                        return;
+                    }
+
+                    if (savedCommit !== latestCommit) {
+                        try { localStorage.clear(); } catch(e) {}
+                        try { sessionStorage.clear(); } catch(e) {}
+                        try { localStorage.setItem('2529stream_commit', latestCommit); } catch(e) {}
+
+                        window.location.href = window.location.pathname + '?v=' + latestCommit.substring(0,8);
+                    }
+                }
+            };
+            xhr.send();
+        } catch (err) {
+            console.log('Error de actualizacion:', err);
+        }
+    })();
+    </script>
+
+    <title>2529STREAM - Mirai Nikki</title>
+    <link rel="icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhqxG5SztWx5o9AALofXf7x9k4NmfPs1WZDMl0xTaz8WapilY6I6kLp-g1-6R1K2GaSrdyHxn-LKTZgdcvrxhfQFAwR8QjwrI0y2nvKtvbCSBU2dayHkaIyHO-9nRAGsUtpwb6c15lUDeOGJvlgUeppuviVdrJosp1B9PbRbfkhM-4udpNdoEQFgeH6VzM/s1600/2529fernando.png" type="image/png">
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #080808;
+            color: #ffffff;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .main-wrapper {
+            width: 100%;
+            height: 100%;
+            overflow-y: scroll;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+        }
+
+        header {
+            padding: 25px 50px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        h1.logo {
+            color: #E50914;
+            margin: 0;
+            font-size: 2.2rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .hero {
+            padding: 200px 50px 80px;
+            background-size: cover;
+            background-position: center 20%;
+            background-image:
+                linear-gradient(to right, rgba(8,8,8,0.9) 10%, rgba(8,8,8,0.2) 80%),
+                linear-gradient(to bottom, transparent 60%, #080808 100%),
+                url('https://m.media-amazon.com/images/M/MV5BYmM1ODgzZWItZjI4ZC00NmExLWFlNzYtYTNmODEwYTJkMWY3XkEyXkFqcGc@._V1_.jpg'); 
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            margin: 0 0 15px 0;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .hero-description {
+            font-size: 1.2rem;
+            max-width: 700px;
+            line-height: 1.6;
+            color: #e0e0e0;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .player-container {
+            display: none;
+            background-color: #000;
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: 1px solid #222;
+        }
+
+        video {
+            width: 100%;
+            max-width: 900px;
+            border-radius: 8px;
+            background-color: #000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+
+        .player-controls-custom {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .action-btn {
+            display: inline-block;
+            margin: 5px; 
+            padding: 12px 20px; 
+            font-weight: bold;
+            font-size: 1rem;
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .close-btn { background: #E50914; color: white; }
+        .close-btn:hover:not(:disabled) { background: #f40612; }
+
+        .nav-btn { background: #222; color: white; border: 1px solid #444; }
+        .nav-btn:hover:not(:disabled) { background: #444; }
+
+        .btn-vlc { background: #FF8C00; color: white; }
+        .btn-vlc:hover:not(:disabled) { background: #e67e00; }
+        
+        .btn-copy { background: #0056b3; color: white; }
+        .btn-copy:hover:not(:disabled) { background: #004494; }
+
+        .content-section {
+            padding: 40px 50px 60px;
+            text-align: left;
+        }
+
+        .season-selector {
+            background-color: #141414;
+            color: white;
+            border: 1px solid #444;
+            padding: 12px 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 4px;
+            margin-bottom: 40px;
+            cursor: pointer;
+            display: block;
+            width: 200px;
+            outline: none;
+        }
+
+        .episodes-grid {
+            text-align: left;
+        }
+
+        .episode-card {
+            background-color: #181818;
+            border-radius: 8px;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: top;
+            width: 300px;
+            margin: 0 15px 30px 0;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #222;
+        }
+
+        .episode-card:hover {
+            -webkit-transform: scale(1.05);
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            border-color: #444;
+        }
+
+        .thumb-container {
+            position: relative;
+            width: 100%;
+            height: 170px;
+            background-color: #111;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .play-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid white;
+            display: block;
+        }
+
+        .play-icon::after {
+            content: "";
+            position: absolute;
+            top: 13px;
+            left: 19px;
+            border-left: 16px solid white;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+        }
+
+        .episode-card:hover .play-overlay {
+            opacity: 1;
+        }
+
+        .episode-info {
+            padding: 20px;
+        }
+
+        .episode-title {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        @media (max-width: 768px) {
+            .hero { padding: 120px 20px 40px; }
+            .hero-title { font-size: 2.5rem; }
+            .content-section { padding: 20px; }
+            header { padding: 15px 20px; }
+            .episode-card { width: 100%; margin: 0 0 20px 0; display: block; }
+            .thumb-container { height: 200px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-wrapper" id="scroll-wrapper">
+        <header><h1 class="logo" onclick="window.location.href='index.html'">2529STREAM</h1></header>
+        
+        <div class="hero">
+            <h2 class="hero-title" id="series-title">Cargando...</h2>
+            <p class="hero-description" id="series-desc"></p>
+        </div>
+
+        <div class="player-container" id="player-section">
+            <video id="main-video-player" controls playsinline webkit-playsinline></video>
+            
+            <div class="player-controls-custom">
+                <button class="action-btn nav-btn" id="btn-prev" onclick="playPrevious()">⏮ Anterior</button>
+                <button class="action-btn btn-vlc" onclick="abrirEnVLC()">VLC</button>
+                <button class="action-btn btn-copy" onclick="copiarEnlace()">Copiar Enlace</button>
+                <button class="action-btn nav-btn" id="btn-next" onclick="playNext()">Siguiente ⏭</button>
+                <div style="margin-top: 10px;">
+                    <button class="action-btn close-btn" onclick="closeInlinePlayer()">✖ Cerrar Video</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <select class="season-selector" id="season-select" onchange="handleSeasonChange()"></select>
+            <div class="episodes-grid" id="episodes-container"></div>
+        </div>
+    </div>
+
+    <script>
+        var miniaturaMirai = "https://imgsrv.crunchyroll.com/cdn-cgi/image/fit=contain,format=auto,quality=85,width=1200,height=675/catalog/crunchyroll/c4b6a178ceb51cdfb68cffe6bfbfe90a.jpe";
+        var currentEpisodeIndex = -1; 
+        var videoUrlActual = ""; 
+
+        var seriesData = {
+            title: "Mirai Nikki",
+            description: "Yukiteru Amano es un estudiante solitario que escribe un diario en su teléfono. Su vida cambia por completo cuando el Dios del Tiempo y el Espacio lo obliga a participar en un juego mortal de supervivencia junto a otros once poseedores de diarios del futuro.",
+            seasons: {
+                "Temporada 1": [
+                    { title: "01 - Registro", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-01.mp4" },
+                    { title: "02 - Términos del contrato", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-02.mp4" },
+                    { title: "03 - Dilema de principios", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-03.mp4" },
+                    { title: "04 - Entrada escrita a mano", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-04.mp4" },
+                    { title: "05 - Nota de voz", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-05.mp4" },
+                    { title: "06 - Modo vibrador", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-06.mp4" },
+                    { title: "07 - Señal de marca", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-07.mp4" },
+                    { title: "08 - Nuevo modelo", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-08.mp4" },
+                    { title: "09 - Número bloqueado", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-09.mp4" },
+                    { title: "10 - Plan familiar", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-10.mp4" },
+                    { title: "11 - Fin del servicio", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-11.mp4" },
+                    { title: "12 - Recepción fuera de rango", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-12.mp4" },
+                    { title: "13 - Llamada restringida", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-13.mp4" },
+                    { title: "14 - Memoria reseteada", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-14.mp4" },
+                    { title: "15 - Doble poseedor", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-15.mp4" },
+                    { title: "16 - Reparación", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-16.mp4" },
+                    { title: "17 - Familia de descuento", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-17.mp4" },
+                    { title: "18 - Líneas cruzadas", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-18.mp4" },
+                    { title: "19 - Borrando todos los mensajes", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-19.mp4" },
+                    { title: "20 - Transferencia de datos", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-20.mp4" },
+                    { title: "21 - PIN", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-21.mp4" },
+                    { title: "22 - Desconexión", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-22.mp4" },
+                    { title: "23 - Incumplimiento del contrato", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-23.mp4" },
+                    { title: "24 - Recuperación de datos", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-24.mp4" },
+                    { title: "25 - Reinicio", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-25.mp4" },
+                    { title: "26 - Inicialización", thumb: miniaturaMirai, url: "https://archive.org/download/mirai-nikki-latino/Mirai%20Nikki/%28Locura%20Anime%29%20MiNi-26.mp4" }
+                ]
+            }
+        };
+
+        document.getElementById('series-title').innerText = seriesData.title;
+        document.getElementById('series-desc').innerText = seriesData.description;
+
+        var seasonSelect = document.getElementById('season-select');
+        for (var s in seriesData.seasons) {
+            var opt = document.createElement('option');
+            opt.value = s; 
+            opt.innerText = s;
+            seasonSelect.appendChild(opt);
+        }
+
+        function handleSeasonChange() {
+            closeInlinePlayer();
+            renderEpisodes();
+        }
+
+        function renderEpisodes() {
+            var container = document.getElementById('episodes-container');
+            container.innerHTML = ''; 
+            var episodes = seriesData.seasons[seasonSelect.value];
+            
+            episodes.forEach(function(ep, index) {
+                var card = document.createElement('div');
+                card.className = 'episode-card';
+                card.onclick = function() { playInline(index); };
+                
+                var thumbHTML = '<div class="thumb-container" style="background-image: url(\'' + ep.thumb + '\');">' +
+                                '<div class="play-overlay"><span class="play-icon"></span></div>' +
+                                '</div>';
+                
+                var infoHTML = '<div class="episode-info"><h3 class="episode-title">' + ep.title + '</h3></div>';
+                
+                card.innerHTML = thumbHTML + infoHTML;
+                container.appendChild(card);
+            });
+        }
+
+        function updateNavButtons(totalEpisodes) {
+            var btnPrev = document.getElementById('btn-prev');
+            var btnNext = document.getElementById('btn-next');
+            
+            btnPrev.disabled = (currentEpisodeIndex <= 0);
+            btnNext.disabled = (currentEpisodeIndex >= totalEpisodes - 1);
+        }
+
+        function playInline(index) {
+            var episodes = seriesData.seasons[seasonSelect.value];
+            
+            if (index < 0 || index >= episodes.length) return;
+            
+            currentEpisodeIndex = index; 
+            var ep = episodes[index];
+            videoUrlActual = ep.url;
+            
+            var player = document.getElementById('main-video-player');
+            var playerSection = document.getElementById('player-section');
+            var scrollWrapper = document.getElementById('scroll-wrapper');
+            
+            playerSection.style.display = 'block';
+            player.src = ep.url;
+            player.load();
+            player.play();
+            
+            updateNavButtons(episodes.length);
+            
+            scrollWrapper.scrollTop = playerSection.offsetTop;
+        }
+
+        function playPrevious() {
+            if (currentEpisodeIndex > 0) {
+                playInline(currentEpisodeIndex - 1);
+            }
+        }
+
+        function playNext() {
+            var episodes = seriesData.seasons[seasonSelect.value];
+            if (currentEpisodeIndex < episodes.length - 1) {
+                playInline(currentEpisodeIndex + 1);
+            }
+        }
+
+        function closeInlinePlayer() {
+            var player = document.getElementById('main-video-player');
+            player.pause();
+            player.src = "";
+            currentEpisodeIndex = -1; 
+            document.getElementById('player-section').style.display = 'none';
+        }
+
+ function abrirEnVLC() {
+            if (!videoUrlActual || videoUrlActual === "") {
+                alert("Por favor, selecciona un capítulo de la lista primero.");
+                return;
+            }
+
+            // Al usar window.top.location.href obligamos a la ventana principal de sebas.website
+            // a lanzar el comando vlc://, esquivando las restricciones de seguridad del iframe.
+            try {
+                window.top.location.href = "vlc://" + videoUrlActual;
+            } catch (error) {
+                // Respaldo tradicional por si acaso
+                window.location.href = "vlc://" + videoUrlActual;
+            }
+        }
+
+        function copiarEnlace() {
+            if (!videoUrlActual) return;
+            
+            var tempInput = document.createElement("textarea");
+            tempInput.value = videoUrlActual;
+            
+            tempInput.style.position = "fixed";
+            tempInput.style.top = "-9999px";
+            tempInput.style.left = "-9999px";
+            
+            document.body.appendChild(tempInput);
+            
+            tempInput.focus();
+            if (tempInput.setSelectionRange) {
+                tempInput.setSelectionRange(0, 99999);
+            } else {
+                tempInput.select();
+            }
+            
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.log("Error al copiar: ", err);
+            }
+            
+            document.body.removeChild(tempInput);
+        }
+
+        renderEpisodes();
+    </script>
+</body>
+</html>
