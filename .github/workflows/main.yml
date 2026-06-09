@@ -1,0 +1,22 @@
+name: 🚀 Despliegue Automático a cPanel
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  web-deploy:
+    name: 🎉 Desplegando en sebastech.website
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Obteniendo el último código
+      uses: actions/checkout@v3
+
+    - name: 📂 Sincronizando archivos con cPanel
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: /public_html/2529stream/
