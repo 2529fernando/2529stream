@@ -122,7 +122,7 @@ header{
 /* ENLACES DE SESIÓN Y REGISTRO */
 .auth-links {
     display: flex;
-    gap: 30px; /* Aumentamos la separación aquí (antes era 15px) */
+    gap: 30px; 
     font-size: 1rem;
     font-weight: bold;
 }
@@ -139,7 +139,7 @@ header{
 
 .banner{
     min-height:250px;
-    padding:60px 30px;
+    padding:40px 30px 60px 30px; /* Ajustado el padding superior */
     background:
     linear-gradient(to right,
         rgba(20,20,20,0.9),
@@ -147,6 +147,53 @@ header{
     url('https://blogger.googleusercontent.com/img/a/AVvXsEhmI8ucvU64OTE0LWNEppHsClqE2VQeq4a9ETqiivy3I7Z55Xr12I6w2gwhzM9EXAH6k9HyV7ieENnmSjH-jqW7KtuaP7BcfeygGmzaIyLBazXpP9wzUC-1dNXZUVYC_oIjquzRMM3pW0PMpSsFWSsVUIOafhbZ6gcMBP_v4Z1g-CDJulTs6pYtQjv4V1g');
     background-size:cover;
     background-position:center;
+}
+
+/* NUEVO DISEÑO DE BOTONES MÁS PEQUEÑOS Y PRESTIGIOSOS */
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px; /* Espacio limpio antes de "Bienvenido" */
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 6px 14px;
+    border-radius: 20px; /* Formato cápsula moderno */
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.85rem; /* Más pequeños y discretos */
+    letter-spacing: 0.3px;
+    transition: all 0.2s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.btn-paypal {
+    background: linear-gradient(135deg, #0070ba 0%, #00457c 100%);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-paypal:hover {
+    background: linear-gradient(135deg, #0086e6 0%, #00569c 100%);
+}
+
+.btn-app {
+    background: linear-gradient(135deg, #E50914 0%, #9b040a 100%);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-app:hover {
+    background: linear-gradient(135deg, #ff1521 0%, #b8060d 100%);
 }
 
 .banner h1{
@@ -293,7 +340,12 @@ footer{
     }
 
     .banner{
-        padding:40px 20px;
+        padding:30px 20px 40px 20px;
+    }
+
+    .action-buttons {
+        justify-content: center; /* Centrar botones en móvil */
+        margin-bottom: 20px;
     }
 
     .banner h1{
@@ -351,6 +403,11 @@ footer{
 </header>
 
 <div class="banner">
+    <div class="action-buttons">
+        <a href="https://paypal.me/2529fer?locale.x=es_XC&country.x=EC" target="_blank" class="btn btn-paypal">💳 Donar en PayPal</a>
+        <a href="https://pub-c3bf2eb8376644b1aee866cb2aeae27a.r2.dev/2529stream/app-debug.apk" target="_blank" class="btn btn-app">📱 Descargar App Móvil</a>
+    </div>
+
     <h1>Bienvenido a 2529Stream</h1>
     <p>Tu plataforma privada de series y contenido en streaming.</p>
 </div>
